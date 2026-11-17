@@ -1,0 +1,26 @@
+name: Feature request
+description: Support another tool or improve a workflow
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you have?
+      description: Describe the situation, not only the solution. Which tool, which failure, how often.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like mirrorwise to do?
+  - type: textarea
+    id: config
+    attributes:
+      label: How is the tool configured today?
+      description: Where is the config file, what is the key that selects the registry (a link to the tool's documentation is ideal).
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Can you help?
+      options:
+        - label: I can write the backend or test it on my machine

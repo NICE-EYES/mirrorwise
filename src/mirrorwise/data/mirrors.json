@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "updated": "2026-11-17",
+  "note": "Every entry is a CANDIDATE taken from public articles and mirror docs listed in 'evidence'. Nothing here was confirmed from a live network by the maintainers (confirmed=false). mirrorwise probes each URL on YOUR network before using it. Trust levels: upstream = the official registry; vendor = large operator or university; community = individual or unknown operator (off by default, needs --allow-community).",
+  "ecosystems": {
+    "pip": {
+      "title": "pip / uv / Poetry (PyPI)",
+      "probe": {
+        "path": "pip/",
+        "expect": { "type": "contains", "value": "pip" },
+        "max_bytes": 262144
+      },
+      "upstream": {
+        "id": "pypi",
+        "name": "PyPI (official)",
+        "url": "https://pypi.org/simple/",
+        "region": "global",
+        "trust": "upstream",
+        "evidence": ["https://thecode.media/zerkalo-pypi/"],
+        "confirmed": false,
+        "notes": "pip first reads the index on pypi.org, then downloads files from files.pythonhosted.org. A mirror that does not rewrite file links still depends on the second host."
+      },
+      "mirrors": [
+        {
+          "id": "yandex-pypi",
+          "name": "Yandex public mirror",
+          "url": "https://mirror.yandex.ru/pypi/simple/",
+          "region": "RU",
+          "trust": "vendor",
+          "evidence": ["https://skillbox.ru/media/code/v-rossii-sboil-pypi-osnovnoy-repozitoriy-paketov-dlya-python/"],
+          "confirmed": false,
+          "notes": "Path as given in a Skillbox Media article (June 2026)."
+        },
+        {
+          "id": "yandex-pypi-alt",
+          "name": "Yandex public mirror (alternative path)",
+          "url": "https://mirror.yandex.ru/mirrors/pypi/simple/",
+          "region": "RU",
+          "trust": "vendor",
+          "evidence": ["https://excalibra.github.io/2024/12-08/01"],
+          "confirmed": false,
+          "notes": "Single low-quality source that disagrees with the path above. Kept so that the probe can decide which one is alive."
+        },
+        {
+          "id": "tuna-pypi",
+          "name": "Tsinghua University TUNA",
+          "url": "https://pypi.tuna.tsinghua.edu.cn/simple/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": [
+            "https://thecode.media/zerkalo-pypi/",
+            "https://skillbox.ru/media/code/v-rossii-sboil-pypi-osnovnoy-repozitoriy-paketov-dlya-python/"
+          ],
+          "confirmed": false,
+          "notes": "University mirror. Use hash-pinned lock files (pip --require-hashes)."
+        },
+        {
+          "id": "aliyun-pypi",
+          "name": "Alibaba Cloud",
+          "url": "https://mirrors.aliyun.com/pypi/simple/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": [
+            "https://skillbox.ru/media/code/v-rossii-sboil-pypi-osnovnoy-repozitoriy-paketov-dlya-python/",
+            "https://excalibra.github.io/2024/12-08/01"
+          ],
+          "confirmed": false,
+          "notes": "The 2024 blog lists the http:// form; https:// is used here."
+        },
+        {
+          "id": "depkit-pypi",
+          "name": "pypi.depkit.ru",
+          "url": "https://pypi.depkit.ru/simple/",
+          "region": "RU",
+          "trust": "community",
+          "evidence": ["https://habr.com/ru/articles/1043976/"],
+          "confirmed": false,
+          "notes": "Hosted by a third party, no source repository was linked in the article. Off by default."
+        }
+      ]
+    },
+    "npm": {
+      "title": "npm / pnpm / Yarn classic",
+      "probe": {
+        "path": "left-pad",
+        "accept": "application/vnd.npm.install-v1+json",
+        "expect": { "type": "regex", "value": "\"name\"\\s*:\\s*\"left-pad\"" },
+        "max_bytes": 262144
+      },
+      "upstream": {
+        "id": "npmjs",
+        "name": "npm registry (official)",
+        "url": "https://registry.npmjs.org/",
+        "region": "global",
+        "trust": "upstream",
+        "evidence": ["https://gac.bytenote.net/tips/npm-china-mirror"],
+        "confirmed": false,
+        "notes": ""
+      },
+      "mirrors": [
+        {
+          "id": "npmmirror",
+          "name": "npmmirror (Alibaba)",
+          "url": "https://registry.npmmirror.com/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://cloud.tencent.com/developer/article/2564836"],
+          "confirmed": false,
+          "notes": "The old npm.taobao.org domain no longer resolves; npmmirror.com is its successor."
+        },
+        {
+          "id": "tencent-npm",
+          "name": "Tencent Cloud",
+          "url": "https://mirrors.cloud.tencent.com/npm/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://gac.bytenote.net/tips/npm-china-mirror"],
+          "confirmed": false,
+          "notes": ""
+        },
+        {
+          "id": "huawei-npm",
+          "name": "Huawei Cloud",
+          "url": "https://repo.huaweicloud.com/repository/npm/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://blog.csdn.net/qq_34707272/article/details/103868227"],
+          "confirmed": false,
+          "notes": ""
+        },
+        {
+          "id": "yandex-npm",
+          "name": "Yandex public mirror",
+          "url": "https://mirror.yandex.ru/npm/",
+          "region": "RU",
+          "trust": "vendor",
+          "evidence": ["https://excalibra.github.io/2024/12-08/01"],
+          "confirmed": false,
+          "notes": "Single low-quality source. Probe decides."
+        }
+      ]
+    },
+    "go": {
+      "title": "Go modules (GOPROXY)",
+      "probe": {
+        "path": "github.com/google/uuid/@v/list",
+        "expect": { "type": "regex", "value": "(?m)^v\\d+\\.\\d+\\.\\d+" },
+        "max_bytes": 65536
+      },
+      "upstream": {
+        "id": "goproxy-official",
+        "name": "proxy.golang.org (official)",
+        "url": "https://proxy.golang.org",
+        "region": "global",
+        "trust": "upstream",
+        "evidence": ["https://proxy.golang.org"],
+        "confirmed": false,
+        "notes": ""
+      },
+      "mirrors": [
+        {
+          "id": "goproxy-cn",
+          "name": "goproxy.cn (Qiniu Cloud)",
+          "url": "https://goproxy.cn",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://goproxy.cn/"],
+          "confirmed": false,
+          "notes": "Go still verifies module hashes against GOSUMDB; if sum.golang.org is unreachable, see the README FAQ."
+        },
+        {
+          "id": "aliyun-goproxy",
+          "name": "Alibaba Cloud",
+          "url": "https://mirrors.aliyun.com/goproxy/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://support.servbay.com/go/set-go-mirror"],
+          "confirmed": false,
+          "notes": ""
+        },
+        {
+          "id": "goproxy-io",
+          "name": "goproxy.io",
+          "url": "https://goproxy.io",
+          "region": "CN",
+          "trust": "community",
+          "evidence": ["https://support.servbay.com/go/set-go-mirror"],
+          "confirmed": false,
+          "notes": "Described as maintained by the GoCN community together with Qiniu Cloud."
+        }
+      ]
+    },
+    "cargo": {
+      "title": "Cargo (crates.io sparse index)",
+      "probe": {
+        "path": "config.json",
+        "expect": { "type": "json_key", "value": "dl" },
+        "max_bytes": 16384
+      },
+      "upstream": {
+        "id": "crates-io",
+        "name": "crates.io (official sparse index)",
+        "url": "sparse+https://index.crates.io/",
+        "region": "global",
+        "trust": "upstream",
+        "evidence": [],
+        "confirmed": false,
+        "notes": "Default sparse index of crates.io, see the Cargo reference (registry index). No fetched source in the research report."
+      },
+      "mirrors": [
+        {
+          "id": "tuna-crates",
+          "name": "Tsinghua University TUNA",
+          "url": "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://mirrors-i.tuna.tsinghua.edu.cn/help/crates.io-index/"],
+          "confirmed": false,
+          "notes": "Trailing slash is required."
+        },
+        {
+          "id": "hust-crates",
+          "name": "Huazhong University of Science and Technology",
+          "url": "sparse+https://mirrors.hust.edu.cn/crates.io-index/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://mirrors.hust.edu.cn/en/docs/crates/"],
+          "confirmed": false,
+          "notes": ""
+        },
+        {
+          "id": "rsproxy",
+          "name": "rsproxy.cn",
+          "url": "sparse+https://rsproxy.cn/index/",
+          "region": "CN",
+          "trust": "vendor",
+          "evidence": ["https://www.github.com/lvillis/init-rs"],
+          "confirmed": false,
+          "notes": "Seen in a third-party README; operator not verified."
+        }
+      ]
+    },
+    "docker": {
+      "title": "Docker Engine (Docker Hub pull-through mirrors)",
+      "probe": {
+        "path": "v2/",
+        "ok_status": [200, 401],
+        "expect": { "type": "any" },
+        "max_bytes": 4096
+      },
+      "upstream": {
+        "id": "dockerhub",
+        "name": "Docker Hub (official)",
+        "url": "https://registry-1.docker.io",
+        "region": "global",
+        "trust": "upstream",
+        "evidence": ["https://habr.com/ru/articles/818299"],
+        "confirmed": false,
+        "notes": "Probe only checks that the registry API answers (200 or 401). It does not pull an image."
+      },
+      "mirrors": [
+        {
+          "id": "google-gcr-mirror",
+          "name": "mirror.gcr.io (Google)",
+          "url": "https://mirror.gcr.io",
+          "region": "global",
+          "trust": "vendor",
+          "evidence": ["https://habr.com/ru/articles/818299"],
+          "confirmed": false,
+          "notes": "Caches popular Docker Hub images only."
+        }
+      ]
+    }
+  }
+}

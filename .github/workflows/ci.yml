@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: tests (py${{ matrix.python }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit tests (stdlib runner, no dependencies)
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -t . -v
+      - name: Validate bundled mirror data
+        env:
+          PYTHONPATH: src
+        run: python -m mirrorwise lint-data
+      - name: Validate example overlay
+        env:
+          PYTHONPATH: src
+        run: python -m mirrorwise lint-data --overlay examples/mirrors.corporate.json
+
+  zipapp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/build_zipapp.py
+      - name: Smoke test the single-file build
+        run: |
+          python dist/mirrorwise.pyz --version
+          python dist/mirrorwise.pyz lint-data
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mirrorwise.pyz
+          path: dist/mirrorwise.pyz

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/NICE-EYES/mirrorwise/discussions
+    about: Ask questions or share ideas here (enable Discussions in the repository settings).
+  - name: Security problem
+    url: https://github.com/NICE-EYES/mirrorwise/security/advisories/new
+    about: Report vulnerabilities privately, not as a public issue.

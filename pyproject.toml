@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mirrorwise"
+version = "0.1.0"
+description = "Probe, pick and safely switch pip/npm/Go/Cargo/Docker mirrors when registries are unreachable. Zero dependencies."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "mirrorwise contributors" }]
+keywords = ["mirror", "registry", "pip", "npm", "go", "cargo", "docker", "failover", "devtools", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: System :: Networking",
+]
+dependencies = []
+
+[project.scripts]
+mirrorwise = "mirrorwise.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/NICE-EYES/mirrorwise"
+Issues = "https://github.com/NICE-EYES/mirrorwise/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mirrorwise = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

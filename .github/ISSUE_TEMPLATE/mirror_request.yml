@@ -1,0 +1,54 @@
+name: Mirror request or correction
+description: Add, fix or remove an entry in the bundled mirror catalog
+labels: ["data"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The catalog only lists mirrors with public evidence. Please paste real probe output from a network that can reach the mirror. Do not include private mirrors or anything that needs an account.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What do you want?
+      options:
+        - Add a mirror
+        - Fix a URL or probe path
+        - Remove a dead or unsafe mirror
+        - Mark a mirror as confirmed
+    validations:
+      required: true
+  - type: dropdown
+    id: eco
+    attributes:
+      label: Ecosystem
+      options: [pip, npm, go, cargo, docker, other]
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Mirror URL (https)
+    validations:
+      required: true
+  - type: input
+    id: operator
+    attributes:
+      label: Who operates it?
+      description: Company, university, cloud provider, or an individual / unknown. Individuals are listed as `community` and are off by default.
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Evidence URL
+      description: Official documentation of the operator is best.
+    validations:
+      required: true
+  - type: textarea
+    id: probe
+    attributes:
+      label: Output of `mirrorwise probe <eco> --url <URL>`
+      description: Run it from a network where the mirror is reachable. State the country / ISP type if you are comfortable, but no addresses.
+      render: shell
+    validations:
+      required: true

@@ -1,0 +1,47 @@
+name: Bug report
+description: Something does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please do not paste private URLs, tokens, usernames or other people's data. Replace them with placeholders.
+  - type: input
+    id: version
+    attributes:
+      label: mirrorwise version
+      description: Output of `mirrorwise --version`
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: OS and Python version
+      placeholder: "Ubuntu 24.04, Python 3.12"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Commands you ran
+      description: Include `--dry-run` output if a config file is involved.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: probe
+    attributes:
+      label: Output of `mirrorwise doctor --json` (optional)
+      render: json
+  - type: checkboxes
+    id: config
+    attributes:
+      label: Config safety
+      options:
+        - label: A config file was left in a wrong state and `mirrorwise revert` did not fix it (this is high priority)

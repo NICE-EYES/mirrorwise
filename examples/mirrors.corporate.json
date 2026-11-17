@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "note": "Overlay file: adds your own mirrors (trust defaults to 'user') and switches off bundled ones. Use with: mirrorwise --data examples/mirrors.corporate.json doctor",
+  "ecosystems": {
+    "pip": {
+      "mirrors": [
+        {
+          "id": "corp-nexus-pypi",
+          "name": "Corporate Nexus (PyPI proxy)",
+          "url": "https://nexus.example.com/repository/pypi-proxy/simple/",
+          "region": "corp"
+        }
+      ],
+      "disable": ["depkit-pypi", "yandex-pypi-alt"]
+    },
+    "npm": {
+      "mirrors": [
+        {
+          "id": "corp-nexus-npm",
+          "name": "Corporate Nexus (npm proxy)",
+          "url": "https://nexus.example.com/repository/npm-proxy/",
+          "region": "corp"
+        }
+      ]
+    },
+    "go": {
+      "mirrors": [
+        {
+          "id": "corp-athens",
+          "name": "Corporate Athens (Go proxy)",
+          "url": "https://athens.example.com",
+          "region": "corp"
+        }
+      ]
+    }
+  }
+}

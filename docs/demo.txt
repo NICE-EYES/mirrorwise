@@ -1,0 +1,89 @@
+# Part 1 - real probes against local fixture servers
+
+$ mirrorwise probe pip --url https://<host-that-drops-the-TLS-handshake>/simple/
+Probing 1 endpoint(s) from this machine...
+pip - pip / uv / Poetry (PyPI)
+  ID      TRUST  STATUS  LATENCY  SPEED  DETAIL
+  custom  user   FAIL    1 ms     -      tls: connection dropped during TLS handshake (SSLEOFError)
+
+TLS handshake dropped: typical sign of filtering on the path to the host
+[exit code 0]
+
+$ mirrorwise probe pip --url http://<healthy-mirror>/simple/
+Probing 1 endpoint(s) from this machine...
+pip - pip / uv / Poetry (PyPI)
+  ID      TRUST  STATUS  LATENCY  SPEED    DETAIL
+  custom  user   ok      2 ms     27 KB/s
+[exit code 0]
+
+$ mirrorwise probe pip --url http://<captive-portal>/simple/
+Probing 1 endpoint(s) from this machine...
+pip - pip / uv / Poetry (PyPI)
+  ID      TRUST  STATUS  LATENCY  SPEED  DETAIL
+  custom  user   FAIL    1 ms     -      content: response does not contain 'pip'
+[exit code 0]
+
+# Part 2 - outage, switch and failback (SIMULATED probe results, real planning and file handling)
+
+$ mirrorwise doctor pip
+Probing 6 endpoint(s) from this machine...
+pip - pip / uv / Poetry (PyPI)
+  ID               TRUST      STATUS  LATENCY  SPEED     DETAIL
+  pypi             upstream   FAIL    100 ms   -         tls: connection dropped during TLS handshake (ConnectionResetError)
+  yandex-pypi      vendor     ok      140 ms   500 KB/s
+  yandex-pypi-alt  vendor     FAIL    100 ms   -         tls: connection dropped during TLS handshake (ConnectionResetError)
+  tuna-pypi        vendor     ok      420 ms   500 KB/s
+  aliyun-pypi      vendor     ok      610 ms   500 KB/s
+  depkit-pypi      community  ok      90 ms    500 KB/s
+
+  DOWN: the official registry is unreachable (tls: connection dropped during TLS handshake (ConnectionResetError)). Healthy mirror: yandex-pypi. Run: mirrorwise apply pip
+
+TLS handshake dropped: typical sign of filtering on the path to the host
+[exit code 1]
+
+$ mirrorwise apply pip --dry-run
+Probing 6 endpoint(s) from this machine...
+Plan for pip:
+  chosen: yandex-pypi (https://mirror.yandex.ru/pypi/simple/) - official registry is down, fastest healthy allowed mirror
+  config: ~/.config/pip/pip.conf
+    --- ~/.config/pip/pip.conf (current)
+    +++ ~/.config/pip/pip.conf (new)
+    @@ -1,2 +1,4 @@
+     [global]
+    +# mirrorwise: managed. Undo: mirrorwise revert pip
+    +index-url = https://mirror.yandex.ru/pypi/simple/
+     timeout = 60
+  dry-run: nothing was written
+[exit code 0]
+
+$ mirrorwise apply pip --yes
+Probing 6 endpoint(s) from this machine...
+Plan for pip:
+  chosen: yandex-pypi (https://mirror.yandex.ru/pypi/simple/) - official registry is down, fastest healthy allowed mirror
+  config: ~/.config/pip/pip.conf
+  done: ~/.config/pip/pip.conf (backup saved)
+  undo with: mirrorwise revert pip
+[exit code 0]
+
+$ cat ~/.config/pip/pip.conf
+[global]
+# mirrorwise: managed. Undo: mirrorwise revert pip
+index-url = https://mirror.yandex.ru/pypi/simple/
+timeout = 60
+
+$ mirrorwise status pip
+Current configuration
+  ECO  SOURCE       URL                                    FROM
+  pip  yandex-pypi  https://mirror.yandex.ru/pypi/simple/  ~/.config/pip/pip.conf (managed by mirrorwise)
+[exit code 0]
+
+$ mirrorwise apply pip --yes
+Probing 6 endpoint(s) from this machine...
+Plan for pip:
+  chosen: pypi (https://pypi.org/simple/) - official registry is healthy again, restoring previous settings
+  pip: restored ~/.config/pip/pip.conf
+[exit code 0]
+
+$ cat ~/.config/pip/pip.conf
+[global]
+timeout = 60

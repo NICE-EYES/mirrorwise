@@ -1,0 +1,89 @@
+# Part 1 - real probes against local fixture servers
+
+$ mirrorwise probe pip --url https://<host-that-drops-the-TLS-handshake>/simple/
+Проверяю 1 адрес(ов) с этой машины...
+pip - pip / uv / Poetry (PyPI)
+  ID      ДОВЕРИЕ  СТАТУС  ЗАДЕРЖКА  СКОРОСТЬ  ДЕТАЛИ
+  custom  user     СБОЙ    1 ms      -         tls: connection dropped during TLS handshake (SSLEOFError)
+
+TLS-рукопожатие оборвано: типичный признак фильтрации на пути к хосту
+[exit code 0]
+
+$ mirrorwise probe pip --url http://<healthy-mirror>/simple/
+Проверяю 1 адрес(ов) с этой машины...
+pip - pip / uv / Poetry (PyPI)
+  ID      ДОВЕРИЕ  СТАТУС  ЗАДЕРЖКА  СКОРОСТЬ  ДЕТАЛИ
+  custom  user     ok      1 ms      49 KB/s
+[exit code 0]
+
+$ mirrorwise probe pip --url http://<captive-portal>/simple/
+Проверяю 1 адрес(ов) с этой машины...
+pip - pip / uv / Poetry (PyPI)
+  ID      ДОВЕРИЕ  СТАТУС  ЗАДЕРЖКА  СКОРОСТЬ  ДЕТАЛИ
+  custom  user     СБОЙ    1 ms      -         content: response does not contain 'pip'
+[exit code 0]
+
+# Part 2 - outage, switch and failback (SIMULATED probe results, real planning and file handling)
+
+$ mirrorwise doctor pip
+Проверяю 6 адрес(ов) с этой машины...
+pip - pip / uv / Poetry (PyPI)
+  ID               ДОВЕРИЕ    СТАТУС  ЗАДЕРЖКА  СКОРОСТЬ  ДЕТАЛИ
+  pypi             upstream   СБОЙ    100 ms    -         tls: connection dropped during TLS handshake (ConnectionResetError)
+  yandex-pypi      vendor     ok      140 ms    500 KB/s
+  yandex-pypi-alt  vendor     СБОЙ    100 ms    -         tls: connection dropped during TLS handshake (ConnectionResetError)
+  tuna-pypi        vendor     ok      420 ms    500 KB/s
+  aliyun-pypi      vendor     ok      610 ms    500 KB/s
+  depkit-pypi      community  ok      90 ms     500 KB/s
+
+  НЕДОСТУПНО: официальный реестр (tls: connection dropped during TLS handshake (ConnectionResetError)). Рабочее зеркало: yandex-pypi. Выполните: mirrorwise apply pip
+
+TLS-рукопожатие оборвано: типичный признак фильтрации на пути к хосту
+[exit code 1]
+
+$ mirrorwise apply pip --dry-run
+Проверяю 6 адрес(ов) с этой машины...
+План для pip:
+  выбрано: yandex-pypi (https://mirror.yandex.ru/pypi/simple/) - официальный реестр недоступен, взято самое быстрое рабочее зеркало
+  конфиг: ~/.config/pip/pip.conf
+    --- ~/.config/pip/pip.conf (current)
+    +++ ~/.config/pip/pip.conf (new)
+    @@ -1,2 +1,4 @@
+     [global]
+    +# mirrorwise: managed. Undo: mirrorwise revert pip
+    +index-url = https://mirror.yandex.ru/pypi/simple/
+     timeout = 60
+  dry-run: ничего не записано
+[exit code 0]
+
+$ mirrorwise apply pip --yes
+Проверяю 6 адрес(ов) с этой машины...
+План для pip:
+  выбрано: yandex-pypi (https://mirror.yandex.ru/pypi/simple/) - официальный реестр недоступен, взято самое быстрое рабочее зеркало
+  конфиг: ~/.config/pip/pip.conf
+  готово: ~/.config/pip/pip.conf (резервная копия сохранена)
+  откат: mirrorwise revert pip
+[exit code 0]
+
+$ cat ~/.config/pip/pip.conf
+[global]
+# mirrorwise: managed. Undo: mirrorwise revert pip
+index-url = https://mirror.yandex.ru/pypi/simple/
+timeout = 60
+
+$ mirrorwise status pip
+Текущая конфигурация
+  ECO  SOURCE       URL                                    FROM
+  pip  yandex-pypi  https://mirror.yandex.ru/pypi/simple/  ~/.config/pip/pip.conf (под управлением mirrorwise)
+[exit code 0]
+
+$ mirrorwise apply pip --yes
+Проверяю 6 адрес(ов) с этой машины...
+План для pip:
+  выбрано: pypi (https://pypi.org/simple/) - официальный реестр снова работает, возвращаю прежние настройки
+  pip: восстановлен ~/.config/pip/pip.conf
+[exit code 0]
+
+$ cat ~/.config/pip/pip.conf
+[global]
+timeout = 60
